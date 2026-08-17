@@ -3,6 +3,11 @@
 Vitrina pública: catálogo, carrito, checkout por transferencia con subida de
 comprobante, encargos a pedido y newsletter.
 
+> Repo: `SantiagoMurilloV/ssa_import` · en local la carpeta se llama `ssa_store`.
+> El panel y el API viven en el repo hermano
+> [`SantiagoMurilloV/ssa_admin`](https://github.com/SantiagoMurilloV/ssa_admin),
+> que es la fuente de verdad de todo lo que esta tienda muestra.
+
 Es un SPA estático más funciones serverless que **hacen de proxy** hacia el API de
 `ssa_admin`. La tienda no tiene base de datos ni credenciales: todo lo que
 muestra viene del admin, y lo único que guarda en el navegador es el carrito.
@@ -75,8 +80,8 @@ admin**: lo que el navegador manda es solo qué producto y cuántas unidades.
 
 ## Diseño
 
-Portado del proyecto de Claude Design "SSA Tienda v6" (ver
-`../design_reference/`). Paleta hueso `#FAF7F4` con lavanda, salvia y durazno;
+Portado del proyecto de Claude Design "SSA Tienda v6" (el HTML original está en
+`design/`). Paleta hueso `#FAF7F4` con lavanda, salvia y durazno;
 tipografías Italiana, Cormorant Garamond, Instrument Serif y Geist.
 
 Dos custom elements de canvas viven en `client/src/lib/`:
