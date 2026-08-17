@@ -1,0 +1,57 @@
+import { formatCOP } from '../../utils/format.js';
+import { useCart } from '../../context/CartContext.jsx';
+
+// Tintes del diseño: se asignan de forma estable por id cuando no hay foto
+const TINTES = ['rgba(217,212,231,.6)', 'rgba(242,217,206,.6)', 'rgba(207,219,211,.6)'];
+export const tinteFor = (id) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) hash = (hash + id.charCodeAt(i)) % TINTES.length;
+  return TINTES[hash];
+};
+
+export default function ProductCard({ product }) {
+  const { addItem } = useCart();
+  const photo = product.photos?.[0];
+  const hasDiscount = product.basePrice > product.price;
+
+  return (
+    <article className="product-card">
+      <div
+        className="product-photo"
+        style={
+          photo
+            ? undefined
+            : {
+                background: `repeating-linear-gradient(-45deg, ${tinteFor(product.id)} 0 14px, rgba(255,255,255,.5) 14px 28px)`
+              }
+        }
+      >
+        {photo ? (
+          photo.mediaType === 'video' ? (
+            <video src={photo.url} muted loop playsInline autoPlay preload="metadata" />
+          ) : (
+            <img src={photo.url} alt={product.name} loading="lazy" />
+          )
+        ) : (
+          <span className="photo-tag">foto: {product.name.toLowerCase()} 4:5</span>
+        )}
+      </div>
+      <div className="product-body">
+        <span className={`product-badge ${product.inStock ? 'stock' : 'preventa'}`}>
+          {product.inStock ? 'En stock · envío inmediato' : 'Preventa · 15 días hábiles'}
+        </span>
+        <h3 className="product-name">{product.name}</h3>
+        <p className="product-detail">{product.detail}</p>
+        <div className="product-foot">
+          <span className="product-price">
+            {hasDiscount && <s>{formatCOP(product.basePrice)}</s>}
+            {formatCOP(product.price)}
+          </span>
+          <button className="btn-dark btn-sm" onClick={() => addItem(product.id)}>
+            Agregar
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}

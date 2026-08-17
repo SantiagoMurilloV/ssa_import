@@ -1,0 +1,15 @@
+{
+  "name": "ssa-store-server",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20.9" },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node --env-file-if-exists=.env src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "zod": "^4.0.14"
+  }
+}
