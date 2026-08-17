@@ -9,6 +9,7 @@ const P = (id, name, detail, category, price, inStock, featured) => ({
   currency: 'COP',
   inStock,
   featured,
+  stock: null, // sin límite: el fallback no puede saber el inventario real
   basePrice: price,
   price,
   photos: []

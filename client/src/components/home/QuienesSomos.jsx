@@ -6,7 +6,7 @@ export default function QuienesSomos() {
   const photo = content.images?.quienesSomos?.[0];
 
   return (
-    <section className="section" data-reveal data-fx="clip">
+    <section id="quienes" className="section" data-reveal data-fx="clip">
       <div className="glass-card editorial-grid">
         <div
           className="editorial-photo"

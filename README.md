@@ -40,7 +40,7 @@ no agrupe a todos bajo la IP de salida de Vercel. Timeout de 8 s.
 |---|---|
 | `GET /api/catalog` | Proxy a `/public/catalog`. Cache de edge 10 s; si el admin no responde, sirve `DEFAULT_CATALOG` |
 | `GET /api/site-content` | Proxy a `/public/site-content`, mismo cache y fallback |
-| `POST /api/orders` | Valida con Zod y crea el pedido. Relaya 201/422/429; cualquier otra cosa → 502 |
+| `POST /api/orders` | Valida con Zod y crea el pedido. Relaya 201/409/422/429; cualquier otra cosa → 502. El 409 es "se agotaron unidades mientras completabas el pedido" y trae cuántas quedan por producto |
 | `POST /api/receipt?reference=SSA-xxxxxx` | Reenvía el multipart del comprobante |
 | `POST /api/encargos` | Reenvía el multipart del encargo |
 | `POST /api/subscribe` | Alta en el newsletter |

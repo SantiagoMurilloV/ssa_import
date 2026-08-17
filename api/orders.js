@@ -1,7 +1,9 @@
 import { adminApiRequest, clientIp, clientUserAgent } from './_admin-api.js';
 import { createOrderSchema } from '../server/src/schemas/order.schema.js';
 
-const RELAYED = new Set([201, 422, 429]);
+// 409 = se agotaron unidades mientras el comprador llenaba el checkout; el
+// cuerpo trae cuántas quedan por producto, así que hay que dejarlo pasar.
+const RELAYED = new Set([201, 409, 422, 429]);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

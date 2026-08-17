@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { formatCOP } from '../../utils/format.js';
 import { useCart } from '../../context/CartContext.jsx';
 
@@ -14,34 +15,42 @@ export default function ProductCard({ product }) {
   const photo = product.photos?.[0];
   const hasDiscount = product.basePrice > product.price;
 
+  const href = `/producto/${encodeURIComponent(product.id)}`;
+
   return (
     <article className="product-card">
-      <div
-        className="product-photo"
-        style={
-          photo
-            ? undefined
-            : {
-                background: `repeating-linear-gradient(-45deg, ${tinteFor(product.id)} 0 14px, rgba(255,255,255,.5) 14px 28px)`
-              }
-        }
-      >
-        {photo ? (
-          photo.mediaType === 'video' ? (
-            <video src={photo.url} muted loop playsInline autoPlay preload="metadata" />
+      {/* La tarjeta entera abre el detalle; el botón "Agregar" queda fuera del
+          link para que no se dispare la navegación al agregar al carrito. */}
+      <Link className="product-link" to={href}>
+        <div
+          className="product-photo"
+          style={
+            photo
+              ? undefined
+              : {
+                  background: `repeating-linear-gradient(-45deg, ${tinteFor(product.id)} 0 14px, rgba(255,255,255,.5) 14px 28px)`
+                }
+          }
+        >
+          {photo ? (
+            photo.mediaType === 'video' ? (
+              <video src={photo.url} muted loop playsInline autoPlay preload="metadata" />
+            ) : (
+              <img src={photo.url} alt={product.name} loading="lazy" />
+            )
           ) : (
-            <img src={photo.url} alt={product.name} loading="lazy" />
-          )
-        ) : (
-          <span className="photo-tag">foto: {product.name.toLowerCase()} 4:5</span>
-        )}
-      </div>
-      <div className="product-body">
-        <span className={`product-badge ${product.inStock ? 'stock' : 'preventa'}`}>
-          {product.inStock ? 'En stock · envío inmediato' : 'Preventa · 15 días hábiles'}
-        </span>
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-detail">{product.detail}</p>
+            <span className="photo-tag">foto: {product.name.toLowerCase()} 4:5</span>
+          )}
+        </div>
+        <div className="product-body">
+          <span className={`product-badge ${product.inStock ? 'stock' : 'preventa'}`}>
+            {product.inStock ? 'En stock · envío inmediato' : 'Preventa · 15 días hábiles'}
+          </span>
+          <h3 className="product-name">{product.name}</h3>
+          <p className="product-detail">{product.detail}</p>
+        </div>
+      </Link>
+      <div className="product-body product-body-foot">
         <div className="product-foot">
           <span className="product-price">
             {hasDiscount && <s>{formatCOP(product.basePrice)}</s>}

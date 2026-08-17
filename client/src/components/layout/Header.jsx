@@ -14,9 +14,8 @@ export default function Header() {
           <Logo />
         </Link>
         <div className="nav-links">
-          <a href={home('#tanda')}>Novedades</a>
           <Link to="/catalogo">Catálogo</Link>
-          <a href={home('#como')}>Cómo funciona</a>
+          <a href={home('#quienes')}>Quiénes somos</a>
           <a href={home('#encargos')}>Encargos</a>
           <a href={home('#contacto')}>Contacto</a>
         </div>

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useReducer, useState } f
 import { trackAddToCart } from '../api/track.api.js';
 
 const STORAGE_KEY = 'ssa-cart-v1';
-const MAX_PER_ITEM = 10;
+export const MAX_PER_ITEM = 10;
 
 const CartContext = createContext(null);
 

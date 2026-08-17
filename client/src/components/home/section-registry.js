@@ -4,7 +4,7 @@ import Encargos from './Encargos.jsx';
 import Newsletter from './Newsletter.jsx';
 import { LAYOUT_SECTION_KEYS } from '../../../../server/src/config/default-site-content.js';
 
-// El hero y "cómo funciona" van siempre primero y no son reordenables.
+// El hero va siempre primero y no es reordenable.
 export const SECTION_COMPONENTS = {
   quienesSomos: QuienesSomos,
   destacados: Destacados,

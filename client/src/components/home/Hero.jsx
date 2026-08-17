@@ -39,7 +39,7 @@ export default function Hero() {
           <Link className="btn-dark" to="/catalogo">
             {hero.ctaPrimary}
           </Link>
-          <a className="btn-light" href="#como">
+          <a className="btn-light" href="#quienes">
             {hero.ctaSecondary}
           </a>
         </div>

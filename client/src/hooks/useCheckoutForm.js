@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { storeApi } from '../api/store.api.js';
 import { useCart } from '../context/CartContext.jsx';
+import { useCatalog } from '../context/CatalogContext.jsx';
 
 const PHONE_PATTERN = /^[\d\s().-]{7,15}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +30,7 @@ export function validateForm(form) {
 
 export function useCheckoutForm() {
   const { items, clearCart } = useCart();
+  const { reload: reloadCatalog } = useCatalog();
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState(null);
@@ -69,6 +71,22 @@ export function useCheckoutForm() {
       clearCart();
       return result;
     } catch (err) {
+      // 409 = se agotaron unidades mientras llenaba el formulario. El carrito no
+      // se limpia y se relee el catálogo para que lo que ya no existe salga de
+      // la vista en vez de fallar otra vez con el mismo error.
+      if (err.status === 409) {
+        const detail = (err.details ?? [])
+          .map((d) => d.message)
+          .filter(Boolean)
+          .join('. ');
+        setSubmitError(
+          detail
+            ? `${detail}. Ajusta tu carrito e intenta de nuevo.`
+            : 'Se agotaron unidades mientras completabas el pedido. Revisa tu carrito.'
+        );
+        reloadCatalog();
+        return null;
+      }
       setSubmitError(
         err.details?.[0]?.message ?? err.message ?? 'No pudimos crear tu pedido. Intenta de nuevo.'
       );
