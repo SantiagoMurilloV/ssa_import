@@ -17,6 +17,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="SSA Import" />
 
+    <link rel="canonical" href="https://ssaimport.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SSA Import" />
     <meta property="og:title" content="SSA Import · Tus favoritos de EE. UU. más cerca de ti" />
@@ -24,7 +25,13 @@
       property="og:description"
       content="Compramos por ti en EE. UU. y te lo entregamos en tu puerta: original y sin vueltas."
     />
-    <meta property="og:image" content="/icons/icon-512.png" />
+    <meta property="og:url" content="https://ssaimport.com/" />
+    <!-- og:image tiene que ser absoluta: WhatsApp y Facebook descargan la imagen
+         desde sus servidores y una ruta relativa no la resuelven. -->
+    <meta property="og:image" content="https://ssaimport.com/icons/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="es_CO" />
     <meta name="twitter:card" content="summary" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
