@@ -12,6 +12,9 @@ export const tinteFor = (id) => {
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
+  // Con opciones no se puede agregar desde la tarjeta: hay que elegir talla o
+  // aroma primero, así que el botón lleva al detalle.
+  const needsChoice = (product.options ?? []).length > 0;
   const photo = product.photos?.[0];
   const hasDiscount = product.basePrice > product.price;
 
@@ -56,9 +59,15 @@ export default function ProductCard({ product }) {
             {hasDiscount && <s>{formatCOP(product.basePrice)}</s>}
             {formatCOP(product.price)}
           </span>
-          <button className="btn-dark btn-sm" onClick={() => addItem(product.id)}>
-            Agregar
-          </button>
+          {needsChoice ? (
+            <Link className="btn-dark btn-sm" to={href}>
+              Elegir
+            </Link>
+          ) : (
+            <button className="btn-dark btn-sm" onClick={() => addItem(product.id)}>
+              Agregar
+            </button>
+          )}
         </div>
       </div>
     </article>

@@ -37,10 +37,10 @@ export default function CartDrawer() {
                 Aún no has agregado piezas.
               </p>
             )}
-            {lines.map(({ product, quantity }) => {
+            {lines.map(({ key, product, variant, quantity, unitPrice }) => {
               const photo = product.photos?.[0];
               return (
-                <div className="cart-item" key={product.id}>
+                <div className="cart-item" key={key}>
                   <div
                     className="cart-item-thumb"
                     style={
@@ -55,20 +55,23 @@ export default function CartDrawer() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 500 }}>{product.name}</div>
+                    {variant?.label && (
+                      <div style={{ fontSize: 12, color: 'var(--ink-50)' }}>{variant.label}</div>
+                    )}
                     <div style={{ fontSize: 12.5, color: 'var(--ink-55)', marginTop: 3 }}>
                       <span className="cart-qty">
-                        <button onClick={() => setQuantity(product.id, quantity - 1)} aria-label="Menos">
+                        <button onClick={() => setQuantity(key, quantity - 1)} aria-label="Menos">
                           −
                         </button>
                         {quantity}
-                        <button onClick={() => setQuantity(product.id, quantity + 1)} aria-label="Más">
+                        <button onClick={() => setQuantity(key, quantity + 1)} aria-label="Más">
                           +
                         </button>
                       </span>{' '}
-                      × {formatCOP(product.price)}
+                      × {formatCOP(unitPrice)}
                     </div>
                   </div>
-                  <button className="cart-remove" onClick={() => removeItem(product.id)}>
+                  <button className="cart-remove" onClick={() => removeItem(key)}>
                     Quitar
                   </button>
                 </div>

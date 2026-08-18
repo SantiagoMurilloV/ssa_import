@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart, parseLineKey } from '../context/CartContext.jsx';
 import { useCatalog } from '../context/CatalogContext.jsx';
 import { resolveShippingFee } from '../utils/shipping.js';
 
@@ -11,10 +11,18 @@ export function useCartTotals(city) {
 
   return useMemo(() => {
     const lines = Object.entries(items)
-      .map(([productId, quantity]) => {
+      .map(([key, quantity]) => {
+        const { productId, variantId } = parseLineKey(key);
         const product = products.find((p) => p.id === productId);
         if (!product) return null;
-        return { product, quantity, lineTotal: product.price * quantity };
+        const variant = variantId
+          ? (product.variants ?? []).find((v) => v.id === variantId)
+          : null;
+        // La variante desapareció del catálogo (se agotó o se ocultó): la línea
+        // se descarta, igual que un producto que ya no existe.
+        if (variantId && !variant) return null;
+        const unitPrice = variant?.price ?? product.price;
+        return { key, product, variant, quantity, unitPrice, lineTotal: unitPrice * quantity };
       })
       .filter(Boolean);
 

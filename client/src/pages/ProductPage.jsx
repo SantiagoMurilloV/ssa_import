@@ -41,6 +41,8 @@ export default function ProductPage() {
   const { items, addItem, setQuantity: setCartQuantity } = useCart();
   const [index, setIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  // { Aroma: 'Bombshell', Talla: 'M' } — lo que el comprador va eligiendo
+  const [chosen, setChosen] = useState({});
 
   const product = products.find((p) => p.id === id);
 
@@ -52,6 +54,7 @@ export default function ProductPage() {
   useEffect(() => {
     setIndex(0);
     setQuantity(1);
+    setChosen({});
   }, [id]);
 
   useEffect(() => {
@@ -95,13 +98,49 @@ export default function ProductPage() {
   }
 
   const photos = product.photos ?? [];
-  const media = photos[index] ?? photos[0];
-  const hasDiscount = product.basePrice > product.price;
-  const inCart = items[product.id] ?? 0;
+  const options = product.options ?? [];
+  const variants = product.variants ?? [];
+
+  // La variante elegida es la que coincide con todas las opciones marcadas.
+  // Si el producto no tiene opciones, no hay nada que elegir.
+  const selected =
+    options.length > 0
+      ? variants.find((variant) =>
+          options.every((option) => variant.options?.[option.name] === chosen[option.name])
+        ) ?? null
+      : null;
+  const needsChoice = options.length > 0 && !selected;
+
+  // Un valor solo se puede elegir si existe alguna variante disponible que lo
+  // tenga junto con el resto de lo ya marcado: así no se ofrecen combinaciones
+  // agotadas (el catálogo público ya descartó las que no tienen stock).
+  const isValueAvailable = (optionName, value) =>
+    variants.some(
+      (variant) =>
+        variant.options?.[optionName] === value &&
+        options.every(
+          (other) =>
+            other.name === optionName ||
+            !chosen[other.name] ||
+            variant.options?.[other.name] === chosen[other.name]
+        )
+    );
+
+  // Cuando la variante trae foto propia, la galería salta a ella
+  const variantPhotoIndex = selected?.photoId
+    ? photos.findIndex((photo) => photo.id === selected.photoId)
+    : -1;
+  const media = photos[variantPhotoIndex >= 0 ? variantPhotoIndex : index] ?? photos[0];
+
+  const price = selected?.price ?? product.price;
+  const basePrice = selected?.basePrice ?? product.basePrice;
+  const hasDiscount = basePrice > price;
+  const stock = selected ? selected.stock : product.stock;
+  const inCart = items[`${product.id}|${selected?.id ?? ''}`] ?? 0;
   // stock null = sin límite; el catálogo público ya no trae los agotados
-  const isScarce = product.stock !== null && product.stock <= LOW_STOCK;
+  const isScarce = stock !== null && stock <= LOW_STOCK;
   // Nadie puede pedir más unidades de las que hay
-  const maxQuantity = Math.min(MAX_PER_ITEM, product.stock ?? MAX_PER_ITEM);
+  const maxQuantity = Math.min(MAX_PER_ITEM, stock ?? MAX_PER_ITEM);
   const paragraphs = (product.description ?? '')
     .split('\n')
     .map((line) => line.trim())
@@ -111,10 +150,13 @@ export default function ProductPage() {
     .slice(0, 3);
 
   const add = () => {
+    if (needsChoice) return;
     // addItem suma una unidad, abre el carrito y registra el evento;
     // con cantidad > 1 fijamos el total (el reducer ya topa en MAX_PER_ITEM)
-    addItem(product.id);
-    if (quantity > 1) setCartQuantity(product.id, inCart + quantity);
+    addItem(product.id, selected?.id ?? null);
+    if (quantity > 1) {
+      setCartQuantity(`${product.id}|${selected?.id ?? ''}`, inCart + quantity);
+    }
   };
 
   return (
@@ -155,9 +197,40 @@ export default function ProductPage() {
           <h1 className="pdp-title">{product.name}</h1>
           {product.detail && <p className="pdp-detail">{product.detail}</p>}
 
+          {options.map((option) => (
+            <div className="pdp-option" key={option.name}>
+              <span className="pdp-option-name">
+                {option.name}
+                {chosen[option.name] && <em> · {chosen[option.name]}</em>}
+              </span>
+              <div className="pdp-option-values">
+                {option.values.map((value) => {
+                  const available = isValueAvailable(option.name, value);
+                  return (
+                    <button
+                      key={value}
+                      className={`pdp-swatch ${chosen[option.name] === value ? 'active' : ''}`}
+                      disabled={!available}
+                      title={available ? undefined : 'Agotado'}
+                      onClick={() =>
+                        setChosen((prev) =>
+                          prev[option.name] === value
+                            ? { ...prev, [option.name]: undefined }
+                            : { ...prev, [option.name]: value }
+                        )
+                      }
+                    >
+                      {value}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
           <div className="pdp-price">
-            {hasDiscount && <s>{formatCOP(product.basePrice)}</s>}
-            <strong>{formatCOP(product.price)}</strong>
+            {hasDiscount && <s>{formatCOP(basePrice)}</s>}
+            <strong>{formatCOP(price)}</strong>
           </div>
 
           <div className="pdp-actions">
@@ -178,8 +251,10 @@ export default function ProductPage() {
                 +
               </button>
             </span>
-            <button className="btn-dark" onClick={add}>
-              Agregar al carrito
+            <button className="btn-dark" onClick={add} disabled={needsChoice}>
+              {needsChoice
+                ? `Elige ${options.map((o) => o.name.toLowerCase()).join(' y ')}`
+                : 'Agregar al carrito'}
             </button>
           </div>
 
@@ -202,7 +277,7 @@ export default function ProductPage() {
           <ul className="pdp-facts">
             {isScarce && (
               <li className="pdp-scarce">
-                {product.stock === 1 ? 'Queda 1 unidad' : `Quedan ${product.stock} unidades`}
+                {stock === 1 ? 'Queda 1 unidad' : `Quedan ${stock} unidades`}
               </li>
             )}
             <li>Original, comprado en tiendas oficiales de EE. UU.</li>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { storeApi } from '../api/store.api.js';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart, parseLineKey } from '../context/CartContext.jsx';
 import { useCatalog } from '../context/CatalogContext.jsx';
 
 const PHONE_PATTERN = /^[\d\s().-]{7,15}$/;
@@ -64,7 +64,10 @@ export function useCheckoutForm() {
         },
         payment: 'transfer',
         ...(paymentChannelId ? { paymentChannelId } : {}),
-        items: Object.entries(items).map(([productId, quantity]) => ({ productId, quantity })),
+        items: Object.entries(items).map(([key, quantity]) => {
+          const { productId, variantId } = parseLineKey(key);
+          return { productId, quantity, ...(variantId ? { variantId } : {}) };
+        }),
         website: form.website
       };
       const result = await storeApi.createOrder(payload);
