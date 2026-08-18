@@ -47,7 +47,11 @@ export default function ProductCard({ product }) {
         </div>
         <div className="product-body">
           <span className={`product-badge ${product.inStock ? 'stock' : 'preventa'}`}>
-            {product.inStock ? 'En stock · envío inmediato' : 'Preventa · 15 días hábiles'}
+            {product.inStock ? 'En stock' : 'Preventa'}
+            {/* el detalle largo se oculta en móvil, donde la tarjeta es angosta */}
+            <span className="product-badge-more">
+              {product.inStock ? ' · envío inmediato' : ' · 15 días hábiles'}
+            </span>
           </span>
           <h3 className="product-name">{product.name}</h3>
           <p className="product-detail">{product.detail}</p>

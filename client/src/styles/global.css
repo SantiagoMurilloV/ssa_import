@@ -18,6 +18,9 @@
   --salvia-26: rgba(111, 146, 124, 0.26);
   --salvia-32: rgba(111, 146, 124, 0.32);
   --durazno: #d6a086;
+  /* Ancho del shell: la tienda usa casi todo el viewport, como una tienda real */
+  --shell: 1480px;
+  --shell-pad: 24px;
 }
 
 * { box-sizing: border-box; }
@@ -77,7 +80,7 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
 }
 
 /* ── Nav ── */
-.nav-wrap { position: sticky; top: 16px; z-index: 50; max-width: 1120px; margin: 16px auto 0; padding: 0 20px; }
+.nav-wrap { position: sticky; top: 16px; z-index: 50; max-width: var(--shell); margin: 16px auto 0; padding: 0 var(--shell-pad); }
 .nav-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 12px 22px; border-radius: 20px;
@@ -165,7 +168,7 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
 /* la nav es sticky: los anclajes necesitan aire para no quedar debajo */
 [id] { scroll-margin-top: 100px; }
 .hero[id] { scroll-margin-top: 0; }
-.section { max-width: 1120px; margin: 0 auto; padding: 0 20px 96px; }
+.section { max-width: var(--shell); margin: 0 auto; padding: 0 var(--shell-pad) 96px; }
 .section-narrow { max-width: 680px; margin: 0 auto; padding: 0 20px 100px; text-align: center; }
 
 .glass-card {
@@ -200,16 +203,43 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
   transition: background 0.2s ease; cursor: pointer; color: var(--ink);
 }
 .pill-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.8); }
-.chips-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+.chips-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 26px; }
 .chip {
-  padding: 9px 20px; border-radius: 999px; font-size: 14px; cursor: pointer;
+  padding: 8px 16px; border-radius: 999px; font-size: 13.5px; white-space: nowrap; cursor: pointer;
   border: 1px solid var(--ink-14); background: rgba(255, 255, 255, 0.5);
   color: var(--ink); transition: all 0.2s ease;
 }
 .chip:hover { opacity: 1; border-color: rgba(42, 42, 53, 0.35); background: rgba(255, 255, 255, 0.8); }
 .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
-.products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 18px; }
+/* En el home los destacados van en filas parejas de 4 */
+.products-grid-featured { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Barra de filtros del catálogo (queda fija al hacer scroll) ── */
+.catalog-section { padding-top: 26px; }
+.catalog-lead { font-size: 14px; line-height: 1.55; color: var(--ink-60); margin: 0 0 14px; max-width: 640px; }
+.catalog-bar {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 80px); z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 0 0 20px; padding: 10px 14px; border-radius: 16px;
+  background: rgba(250, 247, 244, 0.74);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 26px rgba(42, 42, 53, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.catalog-count { flex-shrink: 0; font-size: 13px; color: var(--ink-55); white-space: nowrap; }
+/* Los filtros no se envuelven: se deslizan en horizontal como en cualquier tienda */
+.chips-scroll {
+  margin-bottom: 0; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x proximity;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.chips-scroll::-webkit-scrollbar { display: none; }
+.chips-scroll .chip { flex-shrink: 0; scroll-snap-align: start; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 .product-card {
   border-radius: 24px; overflow: hidden;
   background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px);
@@ -226,23 +256,23 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
   aspect-ratio: 4 / 5; display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 .product-photo img, .product-photo video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.product-body { padding: 20px 22px 24px; }
+.product-body { padding: 16px 17px 18px; }
 .product-badge {
   display: inline-block; font-size: 11.5px; letter-spacing: 0.03em; padding: 5px 12px;
   border-radius: 999px; margin-bottom: 12px; color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.7);
 }
 .product-badge.stock { background: var(--salvia-32); }
 .product-badge.preventa { background: var(--lavanda-30); }
-.product-name { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 21px; margin: 0 0 4px; }
-.product-detail { font-size: 13px; color: var(--ink-55); margin: 0 0 14px; }
+.product-name { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 19px; line-height: 1.2; margin: 0 0 4px; }
+.product-detail { font-size: 12.5px; color: var(--ink-55); margin: 0 0 12px; }
 .product-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .product-price { font-size: 16px; font-weight: 500; }
 .product-price s { color: var(--ink-45); font-weight: 400; font-size: 13px; margin-right: 6px; }
 /* la tarjeta abre el detalle: el link envuelve foto y textos, no el botón */
 .product-link { display: block; color: var(--ink); }
 .product-link:hover { opacity: 1; }
-.product-link .product-body { padding: 20px 22px 0; }
-.product-body-foot { padding: 0 22px 24px; }
+.product-link .product-body { padding: 16px 17px 0; }
+.product-body-foot { padding: 0 17px 18px; }
 
 /* ── Detalle de producto ── */
 .pdp-crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-55); margin-bottom: 22px; }
@@ -327,7 +357,7 @@ textarea.input { resize: vertical; min-height: 80px; }
 .newsletter-box button:hover { transform: translateY(-1px); }
 
 /* ── Footer ── */
-.footer-wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px 40px; }
+.footer-wrap { max-width: var(--shell); margin: 0 auto; padding: 0 var(--shell-pad) 40px; }
 .footer-card {
   border-radius: 24px; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.65); padding: 44px 40px 30px;
@@ -418,8 +448,12 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 
 /* ── Responsive (breakpoints del diseño) ── */
+@media (max-width: 1180px) {
+  .products-grid-featured { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 900px) {
-  .products-grid { grid-template-columns: repeat(2, 1fr); }
+  .products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+  .products-grid-featured { grid-template-columns: repeat(2, 1fr); }
   .pdp-grid { grid-template-columns: 1fr; gap: 32px; }
   .pdp-title { font-size: 32px; }
   .editorial-grid, .editorial-grid.flip { grid-template-columns: 1fr; }
@@ -427,7 +461,28 @@ textarea.input { resize: vertical; min-height: 80px; }
   .checkout-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
-  .products-grid { grid-template-columns: 1fr; }
+  :root { --shell-pad: 14px; }
+  /* Móvil: dos columnas compactas, como Amazon o Mercado Libre */
+  .products-grid, .products-grid-featured { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .product-card { border-radius: 16px; }
+  .product-body { padding: 10px 11px 12px; }
+  .product-link .product-body { padding: 10px 11px 0; }
+  .product-body-foot { padding: 0 11px 12px; }
+  .product-badge { font-size: 10px; padding: 3px 8px; margin-bottom: 8px; }
+  .product-badge-more { display: none; }
+  .product-name { font-size: 15px; }
+  .product-detail { font-size: 11.5px; margin-bottom: 10px; }
+  .product-price { font-size: 14px; }
+  .product-price s { font-size: 11.5px; margin-right: 4px; }
+  /* precio arriba y botón a todo el ancho: en 2 columnas no caben en una fila */
+  .product-foot { flex-direction: column; align-items: stretch; gap: 8px; }
+  .product-foot .btn-sm { width: 100%; text-align: center; }
+  .catalog-section { padding-top: 18px; }
+  .catalog-lead { font-size: 13px; margin-bottom: 12px; }
+  .catalog-bar { top: calc(env(safe-area-inset-top, 0px) + 74px); padding: 8px 10px; border-radius: 14px; gap: 10px; }
+  .catalog-count { font-size: 12px; }
+  .chip { padding: 7px 14px; font-size: 13px; }
+  .section { padding-bottom: 56px; }
   .hero-title { font-size: 13vw !important; }
   .editorial-body { padding: 40px 26px; }
   .checkout-panel { padding: 26px 22px; }

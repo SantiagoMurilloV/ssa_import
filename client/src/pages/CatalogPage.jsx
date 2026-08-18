@@ -31,27 +31,25 @@ export default function CatalogPage() {
   const filters = ['Todo', 'En stock', 'Preventa', ...categories];
 
   return (
-    <section className="section" style={{ paddingTop: 72 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 10 }}>
-        <h1 className="serif-title" style={{ fontSize: 52, margin: 0 }}>
-          {catalogo.title}
-        </h1>
-        <span style={{ fontSize: 14, color: 'var(--ink-55)' }}>{visible.length} productos</span>
-      </div>
-      <p style={{ fontSize: 15, color: 'var(--ink-60)', margin: '0 0 30px', maxWidth: 480 }}>
-        {catalogo.lead}
-      </p>
+    <section className="section catalog-section">
+      {/* El título va oculto: la página se explica sola con los filtros y la
+          grilla, pero el h1 sigue estando para SEO y lectores de pantalla. */}
+      <h1 className="sr-only">{catalogo.title}</h1>
+      <p className="catalog-lead">{catalogo.lead}</p>
 
-      <div className="chips-row">
-        {filters.map((label) => (
-          <button
-            key={label}
-            className={`chip ${filter === label ? 'active' : ''}`}
-            onClick={() => setFilter(label)}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="catalog-bar">
+        <div className="chips-row chips-scroll">
+          {filters.map((label) => (
+            <button
+              key={label}
+              className={`chip ${filter === label ? 'active' : ''}`}
+              onClick={() => setFilter(label)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <span className="catalog-count">{visible.length} productos</span>
       </div>
 
       {status === 'loading' && <p style={{ color: 'var(--ink-55)' }}>Cargando catálogo…</p>}
@@ -69,7 +67,7 @@ export default function CatalogPage() {
         className="glass-card"
         data-reveal
         style={{
-          marginTop: 56,
+          marginTop: 48,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

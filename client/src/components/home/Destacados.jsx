@@ -9,7 +9,7 @@ export default function Destacados() {
 
   // Destacados marcados en el admin; si no hay ninguno, los primeros 3 del catálogo
   const featured = products.filter((p) => p.featured);
-  const visible = (featured.length > 0 ? featured : products).slice(0, 6);
+  const visible = (featured.length > 0 ? featured : products).slice(0, 8);
 
   if (visible.length === 0) return null;
 
@@ -34,7 +34,7 @@ export default function Destacados() {
           </Link>
         ))}
       </div>
-      <div className="products-grid" data-stagger>
+      <div className="products-grid products-grid-featured" data-stagger>
         {visible.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
