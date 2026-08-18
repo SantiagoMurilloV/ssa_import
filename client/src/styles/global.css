@@ -213,8 +213,63 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
 .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 18px; }
-/* En el home los destacados van en filas parejas de 4 */
-.products-grid-featured { grid-template-columns: repeat(4, 1fr); }
+/* ── Carrusel de destacados (home) ── */
+.section-head-actions { display: flex; align-items: center; gap: 12px; }
+.carousel-nav { display: flex; gap: 8px; }
+.carousel-nav[hidden] { display: none; }
+.carousel-btn {
+  width: 38px; height: 38px; border-radius: 999px; display: inline-flex;
+  align-items: center; justify-content: center; cursor: pointer; color: var(--ink);
+  border: 1px solid rgba(42, 42, 53, 0.18); background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.carousel-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.9); }
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+.carousel-track {
+  display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scrollbar-width: none; -ms-overflow-style: none;
+  /* aire para que el hover de la tarjeta no quede recortado por el overflow */
+  padding: 10px 2px 18px;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track > * { flex: 0 0 clamp(230px, 25%, 290px); scroll-snap-align: start; }
+
+/* ── Tarjetas de categoría (cuando no hay destacados) ── */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 16px; }
+.category-card {
+  position: relative; overflow: hidden; min-height: 176px; border-radius: 22px;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 3px;
+  padding: 20px 22px; color: var(--ink);
+  background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 34px rgba(42, 42, 53, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.category-card:hover {
+  opacity: 1; transform: translateY(-5px);
+  box-shadow: 0 22px 48px rgba(42, 42, 53, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+.category-photo { position: absolute; inset: 0; display: block; }
+.category-photo img, .category-photo-empty {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  /* la foto va translúcida: da contexto sin pelear con el texto */
+  opacity: 0.4; transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.category-card:hover .category-photo img { opacity: 0.55; transform: scale(1.04); }
+/* velo de abajo hacia arriba para que el nombre se lea sobre cualquier foto */
+.category-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(250, 247, 244, 0.94) 0%,
+    rgba(250, 247, 244, 0.6) 42%,
+    rgba(250, 247, 244, 0.12) 100%
+  );
+}
+.category-card > .category-name, .category-card > .category-count { position: relative; z-index: 1; }
+.category-name { font-family: 'Instrument Serif', serif; font-size: 23px; line-height: 1.15; }
+.category-count { font-size: 12.5px; color: var(--ink-55); }
 
 /* ── Barra de filtros del catálogo (queda fija al hacer scroll) ── */
 .catalog-section { padding-top: 26px; }
@@ -236,6 +291,8 @@ input::placeholder, textarea::placeholder { color: rgba(42, 42, 53, 0.4); }
 }
 .chips-scroll::-webkit-scrollbar { display: none; }
 .chips-scroll .chip { flex-shrink: 0; scroll-snap-align: start; }
+/* la fila de categorías del home sí respira antes del carrusel */
+.chips-row-home { margin-bottom: 8px; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -448,12 +505,10 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 
 /* ── Responsive (breakpoints del diseño) ── */
-@media (max-width: 1180px) {
-  .products-grid-featured { grid-template-columns: repeat(3, 1fr); }
-}
 @media (max-width: 900px) {
   .products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-  .products-grid-featured { grid-template-columns: repeat(2, 1fr); }
+  /* sin flechas: en táctil se arrastra el carrusel */
+  .carousel-nav { display: none; }
   .pdp-grid { grid-template-columns: 1fr; gap: 32px; }
   .pdp-title { font-size: 32px; }
   .editorial-grid, .editorial-grid.flip { grid-template-columns: 1fr; }
@@ -463,7 +518,14 @@ textarea.input { resize: vertical; min-height: 80px; }
 @media (max-width: 560px) {
   :root { --shell-pad: 14px; }
   /* Móvil: dos columnas compactas, como Amazon o Mercado Libre */
-  .products-grid, .products-grid-featured { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  /* el carrusel deja ver el borde de la siguiente tarjeta */
+  .carousel-track { gap: 12px; padding: 8px 0 14px; }
+  .category-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .category-card { min-height: 138px; border-radius: 16px; padding: 13px 14px; }
+  .category-name { font-size: 17px; }
+  .category-count { font-size: 11.5px; }
+  .carousel-track > * { flex: 0 0 66%; }
   .product-card { border-radius: 16px; }
   .product-body { padding: 10px 11px 12px; }
   .product-link .product-body { padding: 10px 11px 0; }
