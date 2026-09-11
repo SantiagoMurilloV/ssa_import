@@ -1,7 +1,8 @@
 # SSA Import · Tienda
 
 Vitrina pública: catálogo, carrito, checkout por transferencia con subida de
-comprobante, encargos a pedido y newsletter.
+comprobante, encargos a pedido, newsletter y **seguimiento de envíos** con avisos
+push por código.
 
 > Repo: `SantiagoMurilloV/ssa_import` · en local la carpeta se llama `ssa_store`.
 > El panel y el API viven en el repo hermano
@@ -45,6 +46,8 @@ no agrupe a todos bajo la IP de salida de Vercel. Timeout de 8 s.
 | `POST /api/encargos` | Reenvía el multipart del encargo |
 | `POST /api/subscribe` | Alta en el newsletter |
 | `POST /api/events` | Analítica fire-and-forget: responde 202 aunque el admin esté caído |
+| `GET /api/tracking?reference=SSA-xxxxxx` | Guía pública del código (encargo o pedido). Sin cache: la etapa se ve al instante |
+| `POST / DELETE /api/tracking-subscribe` | Alta / baja de los avisos push de **esa** referencia (`{reference, subscription}` / `{reference, endpoint}`) |
 
 ## Páginas
 
@@ -54,6 +57,8 @@ no agrupe a todos bajo la IP de salida de Vercel. Timeout de 8 s.
 | `/catalogo` | Catálogo completo con filtros por categoría / stock / preventa |
 | `/checkout` | Datos de envío + elección del canal de transferencia |
 | `/gracias?ref=SSA-xxxxxx` | Referencia, datos de la cuenta con botón copiar y subida del comprobante |
+| `/envios` | Buscador del número de guía (también se despliega desde **Envíos** en el header) con el recorrido de muestra |
+| `/envios/SSA-xxxxxx` | La guía: foto del producto, mapa animado EE. UU. → Colombia → bodega en Armenia → tu puerta, timeline con fechas y tarjeta para activar avisos push de ese código |
 
 El orden y la visibilidad de las secciones del home se controlan desde
 **Contenido → Orden y visibilidad** en el admin.
@@ -77,6 +82,19 @@ No hay pasarela. El flujo es:
 
 Los precios, el descuento vigente y el costo de envío **siempre los recalcula el
 admin**: lo que el navegador manda es solo qué producto y cuántas unidades.
+
+## Seguimiento de envíos
+
+El código `SSA-######` es el mismo para los pedidos del checkout y para los
+encargos que el admin registra a mano. La guía muestra solo producto, etapa,
+historial y ciudad: nada de teléfono, dirección ni montos, porque el código se
+comparte por WhatsApp y no es una credencial.
+
+Los avisos push usan `public/sw.js`, un service worker **solo de push** (sin
+handler de `fetch`, así no cachea nada ni estorba a Vite). El navegador tiene una
+sola suscripción; el admin la asocia a cada código que la persona activó, y
+`localStorage` (`ssa-tracking-subs`) recuerda cuáles fueron. En iPhone hace
+falta tener la tienda instalada en la pantalla de inicio; la tarjeta lo explica.
 
 ## Diseño
 
@@ -108,6 +126,6 @@ públicos aplica a la IP de salida de Vercel, que todos los compradores comparte
 
 ## Archivos espejo
 
-`server/src/config/default-site-content.js`, `server/src/schemas/order.schema.js`
-y `client/src/utils/shipping.js` tienen su contraparte en `ssa_admin` y deben
-mantenerse sincronizados a mano.
+`server/src/config/default-site-content.js`, `server/src/schemas/order.schema.js`,
+`server/src/config/tracking-stages.js` y `client/src/utils/shipping.js` tienen su
+contraparte en `ssa_admin` y deben mantenerse sincronizados a mano.

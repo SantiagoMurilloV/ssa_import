@@ -53,6 +53,12 @@ export const storeApi = {
     });
   },
   createEncargo: (formData) => request('/encargos', { method: 'POST', formData }),
+  // Guía de seguimiento y sus avisos push (por referencia)
+  getTracking: (reference) => request(`/tracking?reference=${encodeURIComponent(reference)}`),
+  subscribeTracking: (reference, subscription) =>
+    request('/tracking-subscribe', { method: 'POST', body: { reference, subscription } }),
+  unsubscribeTracking: (reference, endpoint) =>
+    request('/tracking-subscribe', { method: 'DELETE', body: { reference, endpoint } }),
   subscribe: (email, website = '') =>
     request('/subscribe', { method: 'POST', body: { email, website } })
 };

@@ -25,6 +25,7 @@ export default function Footer() {
               <span className="footer-col-title">Tienda</span>
               <a href="/#tanda">Novedades</a>
               <Link to="/catalogo">Catálogo</Link>
+              <Link to="/envios">Rastrear envío</Link>
               <a href="/#quienes">Quiénes somos</a>
               <a href="/#encargos">Encargos</a>
             </div>

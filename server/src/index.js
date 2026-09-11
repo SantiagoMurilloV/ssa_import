@@ -5,6 +5,7 @@ import cors from 'cors';
 import { DEFAULT_CATALOG } from './config/default-catalog.js';
 import { DEFAULT_SITE_CONTENT, mergeSiteContent } from './config/default-site-content.js';
 import { createOrderSchema } from './schemas/order.schema.js';
+import { normalizeReference } from './utils/reference.js';
 
 const PORT = Number(process.env.PORT ?? 4000);
 const ADMIN_API_URL = (process.env.ADMIN_API_URL ?? 'http://localhost:4500').replace(/\/$/, '');
@@ -139,6 +140,59 @@ app.post('/api/subscribe', express.json(), async (req, res) => {
     /* cae al 502 */
   }
   res.status(502).json({ error: 'Subscribe service unavailable' });
+});
+
+// Guía de seguimiento (sin cache: la etapa tiene que verse al instante)
+app.get('/api/tracking', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const reference = normalizeReference(req.query.reference);
+  if (!reference) return res.status(422).json({ error: 'El código debe tener el formato SSA-123456' });
+  try {
+    const { status, body } = await adminJson(`/api/public/tracking/${reference}`, { req });
+    if ([200, 404, 422, 429].includes(status)) return res.status(status).json(body);
+  } catch {
+    /* cae al 502 */
+  }
+  res.status(502).json({ error: 'Tracking service unavailable' });
+});
+
+// Avisos push por referencia: alta con POST, baja con DELETE
+app.post('/api/tracking-subscribe', express.json(), async (req, res) => {
+  const reference = normalizeReference(req.body?.reference);
+  const sub = req.body?.subscription;
+  if (!reference) return res.status(422).json({ error: 'Referencia inválida' });
+  if (!sub?.endpoint || !sub?.keys?.p256dh || !sub?.keys?.auth) {
+    return res.status(422).json({ error: 'Suscripción inválida' });
+  }
+  try {
+    const { status, body } = await adminJson(`/api/public/tracking/${reference}/subscribe`, {
+      method: 'POST',
+      body: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } },
+      req
+    });
+    if ([201, 404, 422, 429, 503].includes(status)) return res.status(status).json(body);
+  } catch {
+    /* cae al 502 */
+  }
+  res.status(502).json({ error: 'Tracking service unavailable' });
+});
+
+app.delete('/api/tracking-subscribe', express.json(), async (req, res) => {
+  const reference = normalizeReference(req.body?.reference);
+  if (!reference || typeof req.body?.endpoint !== 'string') {
+    return res.status(422).json({ error: 'Solicitud inválida' });
+  }
+  try {
+    const { status, body } = await adminJson(`/api/public/tracking/${reference}/subscribe`, {
+      method: 'DELETE',
+      body: { endpoint: req.body.endpoint },
+      req
+    });
+    if ([200, 422, 429].includes(status)) return res.status(status).json(body);
+  } catch {
+    /* cae al 502 */
+  }
+  res.status(502).json({ error: 'Tracking service unavailable' });
 });
 
 app.post('/api/events', express.json(), (req, res) => {

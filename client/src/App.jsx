@@ -13,6 +13,7 @@ import CatalogPage from './pages/CatalogPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
 import ThankYouPage from './pages/ThankYouPage.jsx';
+import TrackingPage from './pages/TrackingPage.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -35,6 +36,8 @@ function Shell() {
         <Route path="/producto/:id" element={<ProductPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/gracias" element={<ThankYouPage />} />
+        <Route path="/envios" element={<TrackingPage />} />
+        <Route path="/envios/:reference" element={<TrackingPage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
       <Footer />

@@ -53,6 +53,18 @@ async function readRawBody(req, maxBytes) {
   return Buffer.concat(chunks);
 }
 
+// El runtime parsea el JSON de los POST en req.body, pero no siempre el de un
+// DELETE con cuerpo: si llega crudo, se lee del stream.
+export async function readJsonBody(req) {
+  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return req.body;
+  try {
+    const raw = await readRawBody(req, 64_000);
+    return raw.length === 0 ? {} : JSON.parse(raw.toString('utf8'));
+  } catch {
+    return {};
+  }
+}
+
 // Reenvía un multipart/form-data crudo (comprobantes, encargos) sin parsearlo.
 export async function adminApiForwardMultipart(path, req, { ip, userAgent, maxBytes = 4_500_000 } = {}) {
   let raw;

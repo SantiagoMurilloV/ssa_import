@@ -29,6 +29,7 @@
   ],
   "shortcuts": [
     { "name": "Catálogo", "url": "/catalogo" },
+    { "name": "Rastrear envío", "url": "/envios" },
     { "name": "Encargos", "url": "/#encargos" }
   ]
 }
